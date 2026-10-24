@@ -1,0 +1,38 @@
+name: baseline
+seed: 62
+
+data:
+  tokenized_dir: data/tokenized
+  tokenizer_path: data/tokenized/tokenizer.json
+  train_size: 10000
+  val_size: 512
+  heavy_val_size: 128
+  val_seed: 62
+
+model:
+  type: baseline_transformer
+  params:
+    d_model: 256
+    num_encoder_layers: 4
+    num_decoder_layers: 4
+    num_heads: 8
+    dim_feedforward: 1024
+    dropout: 0.1
+    max_seq_len: 1024
+
+optimizer:
+  type: AdamW
+  params:
+    lr: 0.0003
+    weight_decay: 0.01
+
+scheduler: null
+
+batching:
+  max_tokens: 2048
+  bucket_width: 16
+  num_workers: 0
+
+training:
+  num_epochs: 3
+  examples_per_mini_epoch: 1000

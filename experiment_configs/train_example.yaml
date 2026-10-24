@@ -1,0 +1,68 @@
+# Скопируй этот файл под свой эксперимент и укажи его путь в ноутбуке.
+# Все пути считаются от корня проекта.
+name: train_example  # Уникальное имя папки experiment_runs/<name>.
+seed: 62
+
+# Выбор best.pt: больше pass@1 — лучше (значения по умолчанию).
+# Для минимального loss укажи metric: val_loss и mode: min.
+checkpoint:
+  metric: pass_at_1  # Имя числовой метрики из validation_history.
+  mode: max  # max или min; при равенстве best.pt не заменяется.
+
+data:
+  tokenized_dir: data/tokenized
+  tokenizer_path: data/tokenized/tokenizer.json  # Токенайзер именно этих данных.
+  train_size: 10000  # Число примеров; null — весь train.
+  val_size: null  # Весь val для loss; число — ограничение количества примеров.
+  heavy_val_size: 128  # Уникальные вопросы с числовым эталоном; null — все подходящие.
+  val_seed: 62  # Фиксирует small и heavy подвыборки между запусками.
+
+# Обе проверки запускаются после каждой мини-эпохи.
+validation:
+  max_new_tokens: 256
+  beam_top_k: 8  # Оценивается одна выбранная программа на вопрос.
+  timeout: 2.0  # Секунд на процесс исполнения одной программы.
+  workers: 4
+  rel_tol: 0.000001
+  abs_tol: 0.000001
+  repetition_ngram_size: 4
+
+model:
+  type: baseline++  # Для baseline_transformer параметры другие: см. его YAML.
+  params:
+    embedding_dim: 256  # Должен делиться на num_heads.
+    num_encoder_layers: 4
+    num_decoder_layers: 4
+    num_heads: 8
+    dim_glu: 512
+    dropout: 0.1
+    max_seq_len: 1024  # Должен вмещать входы и цели; обрезания здесь нет.
+    # vocab_size и pad_id подставляются из токенайзера автоматически.
+
+optimizer:
+  type: AdamW
+  params:
+    lr: 0.0003  # LR после warmup.
+    weight_decay: 0.01
+
+# Если расписание не нужно, замени весь блок на scheduler: null.
+scheduler:
+  type: CosineAnnealingLR
+  params:
+    T_max: auto  # Рассчитается по числу мини-эпох за всё обучение, без warmup.
+    eta_min: 0.00003
+  warmup:  # Удали этот блок, если warmup не нужен.
+    steps: 5  # Шаг scheduler = одна мини-эпоха, а не один батч.
+    start_factor: 0.1
+
+batching:
+  max_tokens: 2048  # Бюджет динамического батча в токенах, не число примеров.
+  bucket_width: 16
+  num_workers: 0
+
+training:
+  max_grad_norm: 1.0  # Общая L2-норма градиентов; null отключает clipping.
+  num_epochs: 3  # Общее целевое число полных проходов по выбранному train.
+  examples_per_mini_epoch: 1000  # Примеров между валидациями и сохранениями.
+  # Последний остаток эпохи тоже валидируется и сохраняется.
+  # При T_max: auto общее число мини-эпох должно быть больше warmup.steps.

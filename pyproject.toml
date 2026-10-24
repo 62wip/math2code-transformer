@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nlp-hw2-codegen"
+version = "0.1.0"
+description = "Encoder-decoder Transformers for Python code generation from math problems"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets",
+    "tokenizers",
+    "tqdm",
+    "torch>=2.5",
+    "PyYAML",
+    "sacrebleu>=2.4,<3",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+tracking = [
+    "wandb",
+]
+notebooks = [
+    "huggingface-hub",
+    "pandas",
+    "pyarrow",
+    "kagglehub",
+    "pygments",
+    "ipython",
+    "ipykernel",
+    "ipywidgets",
+    "jupyterlab",
+]
+dev = [
+    "nbformat",
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lib*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["distributed: tiny two-process CPU validation and resume check"]

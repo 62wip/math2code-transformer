@@ -1,0 +1,30 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+
+# Local datasets, caches, checkpoints and experiment outputs
+/data/
+/experiment_runs/*
+!/experiment_runs/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+.DS_Store
+
+# Local editor settings
+.vscode/

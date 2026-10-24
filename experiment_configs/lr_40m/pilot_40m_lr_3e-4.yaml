@@ -1,0 +1,58 @@
+name: pilot_40m_lr_3e-4
+seed: 62
+
+data:
+  tokenized_dir: data/tokenized
+  tokenizer_path: data/tokenized/tokenizer.json
+  train_size: null
+  val_size: 512
+  heavy_val_size: 512
+  val_seed: 62
+
+validation:
+  max_new_tokens: 128
+  beam_top_k: 1
+  timeout: 2.0
+  workers: 4
+  rel_tol: 0.000001
+  abs_tol: 0.000001
+  repetition_ngram_size: 4
+
+model:
+  type: baseline++
+  params:
+    embedding_dim: 512
+    num_encoder_layers: 5
+    num_decoder_layers: 7
+    num_heads: 8
+    dim_glu: 1536
+    dropout: 0.1
+    max_seq_len: 1024
+
+optimizer:
+  type: AdamW
+  params:
+    lr: 0.0003
+    weight_decay: 0.01
+
+scheduler:
+  type: ConstantLR
+  params:
+    factor: 1.0
+    total_iters: 1
+  warmup:
+    steps: 1  # Одна мини-эпоха: 100000 примеров.
+    start_factor: 0.1
+
+batching:
+  max_tokens: 8192
+  bucket_width: 16
+  num_workers: 0
+
+training:
+  num_epochs: 2
+  examples_per_mini_epoch: 100000
+
+checkpoint:
+  metric: pass_at_1
+  mode: max
